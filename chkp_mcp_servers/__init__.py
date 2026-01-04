@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Any, Dict, List, TypedDict
 
@@ -154,23 +155,32 @@ async def _get_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
 
     return prompts_list
 
+# curl -s https://registry.npmjs.org/@sorrir/bluetooth | jq -r .readme
+
+logger = logging.getLogger(__name__)
 
 def _fetch_npm_package_docs(package_name: str) -> str:
     """Internal helper to fetch NPM package documentation and convert to markdown."""
-    url = f"https://www.npmjs.com/package/{package_name}"
-    response = httpx.get(url, follow_redirects=True)
-    response.raise_for_status()
+    try:
+        url = f"https://registry.npmjs.org/{package_name}"
+        logger.info(f"Fetching NPM package documentation for {package_name}")
+        response = httpx.get(url, follow_redirects=True)
+        response.raise_for_status()
 
-    # Convert HTML to markdown
-    h = html2text.HTML2Text()
-    h.ignore_links = False
-    h.ignore_images = False
-    h.ignore_emphasis = False
-    h.body_width = 0  # Don't wrap lines
-
-    markdown = h.handle(response.text)
-
-    return markdown
+        # look for readme field in json
+        data = response.json()
+        readme_text = data.get("readme", "")
+        logger.info(f"Successfully fetched documentation for {package_name}")
+        return readme_text
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error fetching package {package_name}: {e.response.status_code} - {e}")
+        return f"Error: Could not fetch package documentation. HTTP {e.response.status_code}"
+    except httpx.RequestError as e:
+        logger.error(f"Network error fetching package {package_name}: {e}")
+        return f"Error: Network error while fetching package documentation - {e}"
+    except Exception as e:
+        logger.error(f"Unexpected error fetching package {package_name}: {e}")
+        return f"Error: Unexpected error - {e}"
 
 
 # MCP Tools
