@@ -1,7 +1,7 @@
 [project]
-name = "echo-mcp-server"
+name = "chkp-mcp-servers-mcp-server"
 version = "0.1.0"
-description = "A simple FastMCP 2.0 based MCP server with an echo tool"
+description = "MCP server for exploring and introspecting CheckPoint MCP servers"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -9,8 +9,11 @@ dependencies = [
 ]
 
 [project.scripts]
-echo-server = "echo_mcp_server:mcp.run"
+chkp-mcp-servers-mcp-server = "chkp_mcp_servers:mcp.run"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["chkp_mcp_servers"]

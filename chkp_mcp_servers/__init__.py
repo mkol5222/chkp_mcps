@@ -21,7 +21,7 @@ class MCPTool(TypedDict):
     inputSchema: Dict[str, Any]
 
 
-mcp = FastMCP("Echo Server")
+mcp = FastMCP("CheckPoint MCP Servers Explorer")
 
 
 # Helper functions (not exposed as tools)
