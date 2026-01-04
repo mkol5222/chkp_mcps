@@ -38,3 +38,10 @@ uvx --from . echo-server
 - **fetch_readme**: Fetches the README content from CheckPointSW/mcp-servers repository
   - Arguments: None
   - Returns: The content of the README.md file as text
+
+- **list_chkp_mcp_servers**: Lists all CheckPoint MCP servers from the repository
+  - Arguments: None
+  - Returns: A structured list of MCP servers with:
+    - `server_name`: Name of the server
+    - `package_name`: NPM package name
+    - `description`: Server description
