@@ -11,7 +11,7 @@
       "metadata": {
         "name": "CheckPoint MCP Servers Explorer",
         "description": "MCP server for exploring and introspecting CheckPoint MCP servers",
-        "version": "0.1.4"
+        "version": "0.1.5"
       }
     }
   }

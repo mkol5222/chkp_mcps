@@ -159,6 +159,23 @@ async def _get_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
 
 logger = logging.getLogger(__name__)
 
+def _validate_package_name(package_name: str) -> bool:
+    """Validate that package name follows CheckPoint MCP naming conventions.
+    
+    Package name must:
+    - Start with @chkp/
+    - Contain only lowercase letters and hyphens after the prefix
+    - Not start with a hyphen after the prefix
+    
+    Args:
+        package_name: The package name to validate
+        
+    Returns:
+        True if valid, False otherwise
+    """
+    pattern = r'^@chkp/[a-z][a-z-]*$'
+    return bool(re.match(pattern, package_name))
+
 def _fetch_npm_package_docs(package_name: str) -> str:
     """Internal helper to fetch NPM package documentation and convert to markdown."""
     try:
@@ -234,6 +251,8 @@ async def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
     Returns:
         A list of tools with name, description, and inputSchema for each tool
     """
+    if not _validate_package_name(package_name):
+        raise ValueError(f"Invalid package name: {package_name}. Must start with @chkp/ and contain only lowercase letters and hyphens.")
     return await _get_mcp_server_tools(package_name)
 
 
@@ -250,6 +269,8 @@ async def get_chkp_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
     Returns:
         A list of prompts with name, description, and arguments for each prompt
     """
+    if not _validate_package_name(package_name):
+        raise ValueError(f"Invalid package name: {package_name}. Must start with @chkp/ and contain only lowercase letters and hyphens.")
     return await _get_mcp_server_prompts(package_name)
 
 
@@ -266,6 +287,8 @@ def get_chkp_mcp_server_documentation(package_name: str) -> str:
     Returns:
         The package documentation as markdown text
     """
+    if not _validate_package_name(package_name):
+        raise ValueError(f"Invalid package name: {package_name}. Must start with @chkp/ and contain only lowercase letters and hyphens.")
     return _fetch_npm_package_docs(package_name)
 
 
