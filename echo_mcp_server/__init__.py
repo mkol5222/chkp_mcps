@@ -1,8 +1,11 @@
+import asyncio
 import re
-from typing import List, TypedDict
+from typing import Any, Dict, List, TypedDict
 
 import httpx
 from fastmcp import FastMCP
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 
 
 class MCPServer(TypedDict):
@@ -12,52 +15,28 @@ class MCPServer(TypedDict):
     description: str
 
 
+class MCPTool(TypedDict):
+    """Structure for MCP tool information."""
+    name: str
+    description: str
+    inputSchema: Dict[str, Any]
+
+
 mcp = FastMCP("Echo Server")
 
 
-@mcp.tool()
-def echo(message: str) -> str:
-    """Echo back the provided message.
-
-    Args:
-        message: The message to echo back
-
-    Returns:
-        The same message that was provided
-    """
-    return message
-
-
-@mcp.tool()
-def fetch_readme() -> str:
-    """Fetch the README content from CheckPointSW/mcp-servers repository.
-
-    Returns:
-        The content of the README.md file as text
-    """
+# Helper functions (not exposed as tools)
+def _fetch_readme_content() -> str:
+    """Internal helper to fetch README content."""
     url = "https://raw.githubusercontent.com/CheckPointSW/mcp-servers/main/README.md"
     response = httpx.get(url)
     response.raise_for_status()
     return response.text
 
 
-@mcp.tool()
-def list_chkp_mcp_servers() -> List[MCPServer]:
-    """List all CheckPoint MCP servers by parsing the README table.
-
-    Fetches the README from CheckPointSW/mcp-servers repository and extracts
-    server information from the markdown table.
-
-    Returns:
-        A list of MCP servers with server_name, package_name, and description
-    """
-    readme_content = fetch_readme()
-
-    # Find the table in the markdown
-    # Look for lines that start with | and contain server information
+def _parse_mcp_servers_table(readme_content: str) -> List[MCPServer]:
+    """Internal helper to parse the MCP servers table from README content."""
     servers = []
-
-    # Split into lines and find table rows
     lines = readme_content.split('\n')
     in_table = False
 
@@ -106,6 +85,92 @@ def list_chkp_mcp_servers() -> List[MCPServer]:
             break
 
     return servers
+
+
+async def _get_mcp_server_tools_async(package_name: str) -> List[MCPTool]:
+    """Internal async helper to connect to an MCP server and list its tools."""
+    server_params = StdioServerParameters(
+        command="npx",
+        args=[package_name],
+        env=None
+    )
+
+    tools_list = []
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            # List all available tools
+            tools_response = await session.list_tools()
+
+            for tool in tools_response.tools:
+                tools_list.append(MCPTool(
+                    name=tool.name,
+                    description=tool.description or "",
+                    inputSchema=tool.inputSchema
+                ))
+
+    return tools_list
+
+
+def _get_mcp_server_tools(package_name: str) -> List[MCPTool]:
+    """Internal helper to get MCP server tools (sync wrapper)."""
+    return asyncio.run(_get_mcp_server_tools_async(package_name))
+
+
+# MCP Tools
+@mcp.tool()
+def echo(message: str) -> str:
+    """Echo back the provided message.
+
+    Args:
+        message: The message to echo back
+
+    Returns:
+        The same message that was provided
+    """
+    return message
+
+
+@mcp.tool()
+def fetch_readme() -> str:
+    """Fetch the README content from CheckPointSW/mcp-servers repository.
+
+    Returns:
+        The content of the README.md file as text
+    """
+    return _fetch_readme_content()
+
+
+@mcp.tool()
+def list_chkp_mcp_servers() -> List[MCPServer]:
+    """List all CheckPoint MCP servers by parsing the README table.
+
+    Fetches the README from CheckPointSW/mcp-servers repository and extracts
+    server information from the markdown table.
+
+    Returns:
+        A list of MCP servers with server_name, package_name, and description
+    """
+    readme_content = _fetch_readme_content()
+    return _parse_mcp_servers_table(readme_content)
+
+
+@mcp.tool()
+def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
+    """Get all tools from a CheckPoint MCP server.
+
+    Connects to the specified MCP server via stdio and retrieves all available
+    tools with their metadata including name, description, and input schema.
+
+    Args:
+        package_name: The NPM package name of the MCP server (e.g., "@chkp/quantum-gw-cli-mcp")
+
+    Returns:
+        A list of tools with name, description, and inputSchema for each tool
+    """
+    return _get_mcp_server_tools(package_name)
 
 
 if __name__ == "__main__":

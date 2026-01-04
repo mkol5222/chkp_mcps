@@ -45,3 +45,11 @@ uvx --from . echo-server
     - `server_name`: Name of the server
     - `package_name`: NPM package name
     - `description`: Server description
+
+- **get_chkp_mcp_server_tools**: Gets all tools from a CheckPoint MCP server
+  - Arguments:
+    - `package_name` (str): The NPM package name (e.g., "@chkp/quantum-gw-cli-mcp")
+  - Returns: A list of tools with:
+    - `name`: Tool name
+    - `description`: Tool description
+    - `inputSchema`: JSON schema for the tool's input parameters
