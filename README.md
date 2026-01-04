@@ -31,6 +31,12 @@ uvx --from . chkp-mcp-servers-mcp-server
 
 ## Claude Desktop Configuration
 
+### Option 1: Using MCPB File (Recommended)
+
+Double-click the `chkp-mcp-servers-local.mcpb.json` file to install directly into Claude Desktop.
+
+### Option 2: Manual Configuration
+
 Add to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
@@ -52,6 +58,15 @@ Add to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 Replace `/path/to/chkp_mcps` with the absolute path to this project directory.
 
 **Note**: Use the full path to `uv` (find it with `which uv`) because Claude Desktop doesn't inherit your shell's PATH.
+
+### Option 3: Install from GitHub (After Publishing)
+
+Use the `chkp-mcp-servers.mcpb.json` file after publishing to GitHub:
+
+```bash
+# Update the repository URL in chkp-mcp-servers.mcpb.json first
+# Then double-click to install
+```
 
 ## Tools
 

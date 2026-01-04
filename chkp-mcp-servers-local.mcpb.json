@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "chkp-mcp-servers": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/mkoldov/w/chkp_mcps",
+        "run",
+        "chkp-mcp-servers-mcp-server"
+      ],
+      "metadata": {
+        "name": "CheckPoint MCP Servers Explorer",
+        "description": "MCP server for exploring and introspecting CheckPoint MCP servers",
+        "version": "0.1.0"
+      }
+    }
+  }
+}
