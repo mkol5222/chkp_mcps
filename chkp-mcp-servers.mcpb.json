@@ -4,15 +4,15 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/YOUR_USERNAME/chkp_mcps",
+        "git+https://github.com/mkol5222/chkp_mcps",
         "chkp-mcp-servers-mcp-server"
       ],
       "metadata": {
         "name": "CheckPoint MCP Servers Explorer",
         "description": "MCP server for exploring and introspecting CheckPoint MCP servers",
         "version": "0.1.0",
-        "author": "Your Name",
-        "repository": "https://github.com/YOUR_USERNAME/chkp_mcps"
+        "author": "Martin Koldovsky",
+        "repository": "https://github.com/mkol5222/chkp_mcps"
       }
     }
   }
