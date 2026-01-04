@@ -1,6 +1,7 @@
 import re
 from typing import Any, Dict, List, TypedDict
 
+import html2text
 import httpx
 from fastmcp import FastMCP
 from mcp import ClientSession, StdioServerParameters
@@ -154,6 +155,24 @@ async def _get_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
     return prompts_list
 
 
+def _fetch_npm_package_docs(package_name: str) -> str:
+    """Internal helper to fetch NPM package documentation and convert to markdown."""
+    url = f"https://www.npmjs.com/package/{package_name}"
+    response = httpx.get(url, follow_redirects=True)
+    response.raise_for_status()
+
+    # Convert HTML to markdown
+    h = html2text.HTML2Text()
+    h.ignore_links = False
+    h.ignore_images = False
+    h.ignore_emphasis = False
+    h.body_width = 0  # Don't wrap lines
+
+    markdown = h.handle(response.text)
+
+    return markdown
+
+
 # MCP Tools
 @mcp.tool()
 def echo(message: str) -> str:
@@ -224,10 +243,26 @@ async def get_chkp_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
     return await _get_mcp_server_prompts(package_name)
 
 
-@mcp.prompt
-def ask_about_chkp_mcp_server_documentation(package_name: str) -> str:
-    """Generates a user message asking for specific Check Point MCP server documentation."""
-    return f"Fetch content of `https://www.npmjs.com/package/{package_name}` to get specific MCP server documentation including how to configure, what configuratuion environment variables exist and more."
+@mcp.tool()
+def get_chkp_mcp_server_documentation(package_name: str) -> str:
+    """Get NPM package documentation for a CheckPoint MCP server.
+
+    Fetches the NPM package page and converts it to markdown format, including
+    README, configuration details, environment variables, and usage information.
+
+    Args:
+        package_name: The NPM package name of the MCP server (e.g., "@chkp/quantum-management-mcp")
+
+    Returns:
+        The package documentation as markdown text
+    """
+    return _fetch_npm_package_docs(package_name)
+
+
+# @mcp.prompt
+# def ask_about_chkp_mcp_server_documentation(package_name: str) -> str:
+#     """Generates a user message asking for specific Check Point MCP server documentation."""
+#     return f"Fetch content of `https://www.npmjs.com/package/{package_name}` to get specific MCP server documentation including how to configure, what configuratuion environment variables exist and more."
 
 if __name__ == "__main__":
     mcp.run()

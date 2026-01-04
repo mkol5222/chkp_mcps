@@ -101,9 +101,7 @@ Use the `chkp-mcp-servers.mcpb.json` file after publishing to GitHub:
     - `description`: Prompt description
     - `arguments`: List of prompt arguments with name, description, and required flag
 
-## Prompts
-
-- **ask_about_chkp_mcp_server_documentation**: Generates a prompt to fetch NPM package documentation
+- **get_chkp_mcp_server_documentation**: Gets NPM package documentation
   - Arguments:
-    - `package_name` (str): The NPM package name
-  - Returns: A message asking to fetch the package documentation from npmjs.com
+    - `package_name` (str): The NPM package name (e.g., "@chkp/quantum-management-mcp")
+  - Returns: Package documentation as markdown, including README, configuration details, and environment variables
