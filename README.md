@@ -100,3 +100,10 @@ Use the `chkp-mcp-servers.mcpb.json` file after publishing to GitHub:
     - `name`: Prompt name
     - `description`: Prompt description
     - `arguments`: List of prompt arguments with name, description, and required flag
+
+## Prompts
+
+- **ask_about_chkp_mcp_server_documentation**: Generates a prompt to fetch NPM package documentation
+  - Arguments:
+    - `package_name` (str): The NPM package name
+  - Returns: A message asking to fetch the package documentation from npmjs.com

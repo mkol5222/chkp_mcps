@@ -224,5 +224,10 @@ async def get_chkp_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
     return await _get_mcp_server_prompts(package_name)
 
 
+@mcp.prompt
+def ask_about_chkp_mcp_server_documentation(package_name: str) -> str:
+    """Generates a user message asking for specific Check Point MCP server documentation."""
+    return f"Fetch content of `https://www.npmjs.com/package/{package_name}` to get specific MCP server documentation including how to configure, what configuratuion environment variables exist and more."
+
 if __name__ == "__main__":
     mcp.run()
