@@ -34,3 +34,7 @@ uvx --from . echo-server
 - **echo**: Echoes back the provided message
   - Arguments:
     - `message` (str): The message to echo back
+
+- **fetch_readme**: Fetches the README content from CheckPointSW/mcp-servers repository
+  - Arguments: None
+  - Returns: The content of the README.md file as text
