@@ -92,3 +92,11 @@ Use the `chkp-mcp-servers.mcpb.json` file after publishing to GitHub:
     - `name`: Tool name
     - `description`: Tool description
     - `inputSchema`: JSON schema for the tool's input parameters
+
+- **get_chkp_mcp_server_prompts**: Gets all prompts from a CheckPoint MCP server
+  - Arguments:
+    - `package_name` (str): The NPM package name (e.g., "@chkp/quantum-gw-cli-mcp")
+  - Returns: A list of prompts with:
+    - `name`: Prompt name
+    - `description`: Prompt description
+    - `arguments`: List of prompt arguments with name, description, and required flag

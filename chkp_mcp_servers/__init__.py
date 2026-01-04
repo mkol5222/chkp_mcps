@@ -21,6 +21,13 @@ class MCPTool(TypedDict):
     inputSchema: Dict[str, Any]
 
 
+class MCPPrompt(TypedDict):
+    """Structure for MCP prompt information."""
+    name: str
+    description: str
+    arguments: List[Dict[str, Any]]
+
+
 mcp = FastMCP("CheckPoint MCP Servers Explorer")
 
 
@@ -113,6 +120,40 @@ async def _get_mcp_server_tools(package_name: str) -> List[MCPTool]:
     return tools_list
 
 
+async def _get_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
+    """Internal async helper to connect to an MCP server and list its prompts."""
+    server_params = StdioServerParameters(
+        command="npx",
+        args=[package_name],
+        env=None
+    )
+
+    prompts_list = []
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            # List all available prompts
+            prompts_response = await session.list_prompts()
+
+            for prompt in prompts_response.prompts:
+                prompts_list.append(MCPPrompt(
+                    name=prompt.name,
+                    description=prompt.description or "",
+                    arguments=[
+                        {
+                            "name": arg.name,
+                            "description": arg.description or "",
+                            "required": arg.required
+                        }
+                        for arg in (prompt.arguments or [])
+                    ]
+                ))
+
+    return prompts_list
+
+
 # MCP Tools
 @mcp.tool()
 def echo(message: str) -> str:
@@ -165,6 +206,22 @@ async def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
         A list of tools with name, description, and inputSchema for each tool
     """
     return await _get_mcp_server_tools(package_name)
+
+
+@mcp.tool()
+async def get_chkp_mcp_server_prompts(package_name: str) -> List[MCPPrompt]:
+    """Get all prompts from a CheckPoint MCP server.
+
+    Connects to the specified MCP server via stdio and retrieves all available
+    prompts with their metadata including name, description, and arguments.
+
+    Args:
+        package_name: The NPM package name of the MCP server (e.g., "@chkp/quantum-gw-cli-mcp")
+
+    Returns:
+        A list of prompts with name, description, and arguments for each prompt
+    """
+    return await _get_mcp_server_prompts(package_name)
 
 
 if __name__ == "__main__":
