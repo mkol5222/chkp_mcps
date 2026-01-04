@@ -1,4 +1,3 @@
-import asyncio
 import re
 from typing import Any, Dict, List, TypedDict
 
@@ -87,7 +86,7 @@ def _parse_mcp_servers_table(readme_content: str) -> List[MCPServer]:
     return servers
 
 
-async def _get_mcp_server_tools_async(package_name: str) -> List[MCPTool]:
+async def _get_mcp_server_tools(package_name: str) -> List[MCPTool]:
     """Internal async helper to connect to an MCP server and list its tools."""
     server_params = StdioServerParameters(
         command="npx",
@@ -112,11 +111,6 @@ async def _get_mcp_server_tools_async(package_name: str) -> List[MCPTool]:
                 ))
 
     return tools_list
-
-
-def _get_mcp_server_tools(package_name: str) -> List[MCPTool]:
-    """Internal helper to get MCP server tools (sync wrapper)."""
-    return asyncio.run(_get_mcp_server_tools_async(package_name))
 
 
 # MCP Tools
@@ -158,7 +152,7 @@ def list_chkp_mcp_servers() -> List[MCPServer]:
 
 
 @mcp.tool()
-def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
+async def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
     """Get all tools from a CheckPoint MCP server.
 
     Connects to the specified MCP server via stdio and retrieves all available
@@ -170,7 +164,7 @@ def get_chkp_mcp_server_tools(package_name: str) -> List[MCPTool]:
     Returns:
         A list of tools with name, description, and inputSchema for each tool
     """
-    return _get_mcp_server_tools(package_name)
+    return await _get_mcp_server_tools(package_name)
 
 
 if __name__ == "__main__":
